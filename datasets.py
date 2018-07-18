@@ -51,7 +51,7 @@ iterator = dataset.make_initializable_iterator()
 get_next = iterator.get_next()
 double = 2 * get_next
 
-# Again, repeatedly run the Operation to iterate through the Dataset
+# Again, repeatedly run get_next to iterate through the Dataset (multiple times)
 with tf.Session() as sess:
     for epoch in range(3):
         sess.run(iterator.initializer)
@@ -64,7 +64,7 @@ with tf.Session() as sess:
 # Repeating a Dataset, without touching the Iterator
 raw_data = np.array([[1,1],[2,2],[3,3],[4,4]], dtype=np.float32)
 dataset = tf.data.Dataset.from_tensor_slices(raw_data)
-dataset = dataset.repeat(2)
+dataset = dataset.repeat(2)  # No argument here will loop indefinitely
 get_next = dataset.make_one_shot_iterator().get_next()
 
 with tf.Session() as sess:
@@ -72,7 +72,7 @@ with tf.Session() as sess:
 
 # Batching a Dataset, which retrives multiple rows on each get_next Op
 dataset = tf.data.Dataset.from_tensor_slices(raw_data)
-dataset = dataset.batch(2)  # No argument here will loop indefinitely
+dataset = dataset.batch(2)
 get_next = dataset.make_one_shot_iterator().get_next()
 
 with tf.Session() as sess:
@@ -104,7 +104,7 @@ get_next = dataset.make_one_shot_iterator().get_next()
 with tf.Session() as sess:
     run_until_end(get_next)  # (array([1.,1.]), 0) ...
 
-# Alternatively, feed features and labels into a Dataset simultaneously
+# Alternatively to zip, feed features and labels into a Dataset simultaneously
 dataset = tf.data.Dataset.from_tensor_slices((raw_data, raw_labels))
 get_next = dataset.make_one_shot_iterator().get_next()
 
@@ -135,7 +135,6 @@ with tf.Session() as sess:
     run_until_end(get_next)  # 'string 1' ... 'string 2' ...
 
 # TextLineDataset on a CSV of numbers, requires pre-processing
-# (TODO: Is this a segue into feature columns?)
 dataset = tf.data.TextLineDataset('./datasets/data.csv')
 dataset = dataset.skip(1)
 dataset = dataset.map(parse_row)
@@ -145,7 +144,7 @@ with tf.Session() as sess:
 
 # FixedLengthRecordDataset reads a certain number of bytes per row, from a
 # binary file (such as in image datasets).
-# dataset = tf.data.FixedLengthRecordDataset('filename')
+# dataset = tf.data.FixedLengthRecordDataset('filename', bytes_per_record)
 # ...rest skipped
 
 # TFRecordDataset reads from a .tfrecord file, which is "a simple record-
@@ -161,7 +160,7 @@ with tf.Session() as sess:
 # We parameterize range() here, but can also parameterize from_tensor_slices()
 # with Placeholders of the same sizes, and feed in arrays at Session runtime.
 # Otherwise, from_tensor_slices() will store the data as Constants in the
-# graph, potentially causing bloat.
+# Graph, potentially causing bloat.
 m, k = tf.placeholder(tf.int64, shape=()), tf.placeholder(tf.int64, shape=())
 dataset = tf.data.Dataset.range(m)
 iterator = dataset.make_initializable_iterator()
@@ -174,9 +173,9 @@ with tf.Session() as sess:
 
 # A re-initializable Iterator can iterate over different Datasets with the same
 # structures.
-# This is useful for running the same computational graph over a training set,
-# and then a validation set. Otherwise, each iterator would have its own
-# computational graph.
+# This is useful for running the same computational Graph over a training set,
+# and then a validation set. Otherwise, each Iterator would have its own
+# computational Graph (and it would be difficult to share parameter Variables).
 dataset_A = tf.data.Dataset.range(5)
 dataset_B = tf.data.Dataset.range(5, 10)
 iterator = tf.data.Iterator.from_structure(dataset_A.output_types,

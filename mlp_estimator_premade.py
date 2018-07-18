@@ -8,7 +8,8 @@ import tensorflow as tf
 
 def make_dataset(images_file, labels_file, batch_size, epochs=1):
     """Reads MNIST files into a Dataset.
-       Based on: https://github.com/tensorflow/models/blob/master/official/mnist/dataset.py"""
+       Identical to mlp_estimator_custom.py.
+       Based on: mlp_low_level.py, with slight tweaks for Estimators."""
     images_file = os.path.join('datasets', images_file)
     labels_file = os.path.join('datasets', labels_file)
 
@@ -60,7 +61,7 @@ estimator = tf.estimator.DNNClassifier(
     optimizer = tf.train.GradientDescentOptimizer(learning_rate),
     loss_reduction = tf.losses.Reduction.MEAN,
     config = tf.estimator.RunConfig(
-        log_step_count_steps=steps_per_epoch,
+        log_step_count_steps=steps_per_epoch,  # Log every X number of steps
         model_dir=model_dir
     )
 )
@@ -102,7 +103,7 @@ print(next(predictions))
 # the two functions in sync (is this the purpose of tf.Transform?).
 
 # You can run the SavedModel with TF Serving with a command like:
-#   tensorflow_model_server --port=9000 --model_base_path=$export_dir_base
+#   tensorflow_model_server --port=9000 --model_base_path=$path_to_savedmodel
 
 ###############################################################################
 # Note on TensorBoard

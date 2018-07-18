@@ -4,7 +4,7 @@ import tensorflow as tf
 # Note: All ops and tensors are automatically added to the default graph
 
 ###############################################################################
-# Fun with static Tensors (constants)
+# Fun with Constants (static Tensors)
 ###############################################################################
 
 a = tf.constant(5)              # a.shape is ()
@@ -25,7 +25,7 @@ with tf.Session() as sess:
     print(sess.run(tf.reshape(b, (-1, 1))))  # array([[1],[2],[3]])
 
 ###############################################################################
-# Fun with empty Tensors (placeholders)
+# Fun with Placeholders (empty Tensors)
 ###############################################################################
 
 tf.reset_default_graph()
@@ -61,7 +61,7 @@ with tf.Session() as sess:
 
     # ...with Variable.assign()
     try: sess.run(v)
-    except Exception as e: print(e)  # Attempting to use uninitialized value v
+    except Exception as e: print(e)  # 'Attempting to use uninitialized value v'
     sess.run(v.assign([100]))        # v.initializer is v.assign(v.initialized_value())
     print(v)                         # Variable(name='v:0')
     print(sess.run(v))               # array([100.])
@@ -77,19 +77,19 @@ with tf.Session() as sess:
 
 # After Variables are initialized, you can use them like Tensors in Sessions
 with tf.Session() as sess:
-    # Running a Session works identically when passing in a Variable
+    # Running a Session works the same way with Variables
     sess.run(tf.global_variables_initializer())
     print(sess.run(u))     # 3
     print(sess.run(10*u))  # 30
 
     # The Operation created by assign() is powerful as it allows us to modify a
-    # Tensor after creation, when running a Session
-    print(sess.run(u.assign(3)))        # 3
+    # Tensor after creation, in the middle of a Session run
+    print(sess.run(u.assign(5)))        # 5
     print(sess.run(tf.assign(v, [1])))  # array([1.])
 
     # The static value of the Tensor is truly modified, as it is retained
-    # between when a Session run ends and a new run starts
-    print(sess.run(u))  # 3
+    # between runs of a Session
+    print(sess.run(u))  # 5
     print(sess.run(v))  # array([1.])
 
 # When declaring Variables, if a name is specified, it must be unique
@@ -108,7 +108,7 @@ print(z1)                # Variable(name='scopeA/z:0')
 print(z2)                # Variable(name='scopeB/z:0')
 print(z3)                # Tensor('scopeB/Const_1:0')
 
-# However, you can explicitly share defined scopes
+# However, you can explicitly share scopes to duplicate references to Variables
 with tf.variable_scope('scopeC'):
     t1 = tf.get_variable('t', dtype=tf.int64, initializer=np.array([1,1]))
 with tf.variable_scope('scopeC', reuse=True):
@@ -160,7 +160,7 @@ print(result.op.inputs._inputs)        # [Tensor('Placeholder:0'), Tensor('Const
 print(result.op.outputs)               # [Tensor('mul:0')]
 print(result.op.outputs[0] is result)  # True
 
-# You can give names to Operations by using the TensorFlow functions
+# You can give names to Operations by using tf.* functions
 result = tf.multiply(p, a, name='result')
 print(result)             # Tensor('result:0')
 print(repr(result.op))    # Operation(name='result', type='Mul')
@@ -184,10 +184,10 @@ print(v2.op.outputs)         # [Tensor('v2:0')]
 
 # Graphs have collections that can hold groups of (usually) Variables
 u = tf.get_variable('u', initializer=2, collections=['my_collection'])
-tf.add_to_collection('my_collection', 'arbitrary object')
+tf.add_to_collection('my_collection', [{'arbitrary object'}])
 print(tf.GraphKeys.GLOBAL_VARIABLES)                     # By default, all Variables go into this collection
 print(tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES))  # [Variable(name='v:0')]
-print(tf.get_collection('my_collection'))                # [Variable(name='u:0'), 'arbitrary object']
+print(tf.get_collection('my_collection'))                # [Variable(name='u:0'), [{'arbitrary object'}]]
 
 # You can manage multiple Graphs in the same script, each owning its own context
 graphB = tf.Graph()

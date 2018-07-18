@@ -37,15 +37,15 @@ z = result + (x + b)
 writer = tf.summary.FileWriter('./logs')
 writer.add_graph(tf.get_default_graph())
 
-# Write scalar values to a log file
+# Write "timestamped" scalar values to a log file
 t = tf.Variable(2.0)
-tf.summary.scalar('t', t)         # Tensor('t:0', dtype=string)
+tf.summary.scalar('t', t)         # Tensor('t:0', dtype=string), this tracks the value of the Variable at t
 summary = tf.summary.merge_all()  # This concats all summary Tensors (in GraphKeys.SUMMARIES collection) into one Tensor
 
 with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
     for step in range(100):
-        _, summary_val = sess.run((t.assign(t+1), summary))  # Here, summary_val is the serialized value of summary 't'
+        _, summary_val = sess.run((t.assign(t+1), summary))  # summary_val is the serialized value of the Tensor that summary 't' tracks
         writer.add_summary(summary_val, step)                # Write the string summary_val to an events log file
         writer.flush()                                       # This is necessary since this loop is too fast
 

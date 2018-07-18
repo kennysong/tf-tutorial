@@ -8,7 +8,8 @@ import tensorflow as tf
 
 def make_dataset(images_file, labels_file, batch_size, epochs=1):
     """Reads MNIST files into a Dataset.
-       Based on: https://github.com/tensorflow/models/blob/master/official/mnist/dataset.py"""
+       Identical to mlp_estimator_premade.py.
+       Based on: mlp_low_level.py, with slight tweaks for Estimators."""
     images_file = os.path.join('datasets', images_file)
     labels_file = os.path.join('datasets', labels_file)
 
@@ -109,7 +110,7 @@ estimator = tf.estimator.Estimator(
         'optimizer': tf.train.GradientDescentOptimizer(learning_rate)
     },
     config = tf.estimator.RunConfig(
-        log_step_count_steps=steps_per_epoch,
+        log_step_count_steps=steps_per_epoch,  # Log every X number of steps
         model_dir=model_dir
     )
 )
@@ -148,8 +149,8 @@ print(next(predictions))
 
 # See mlp_estimator_premade.py
 
-# For a custom Estimator, you have to specifically define the outputs in the
-# model_fn's tf.estimator.EstimatorSpec return value. The output is of type
+# For a custom Estimator, you have to specifically define the serving outputs
+# in the model_fn's tf.estimator.EstimatorSpec return value. The output is
 # tf.estimator.export.ClassificationOutput (classes & scores), RegressionOutput
 # (a single number), or PredictOutput (raw Tensor output).
 
@@ -179,11 +180,11 @@ print(next(predictions))
 # columns in memory (e.g. decoding binary image files into vectors), and
 # Feature Columns as high-level transformations from data columns
 # to features (e.g. 784 Dataset columns => one "image" feature, or turning a
-# vocabulary into one-hot vectors or embeddings).
+# string column into one-hot vectors or embeddings).
 
 # numeric_column: numbers -> numbers
 # bucketized_column: numeric_column + bucket ranges -> one-hot vectors
-# categorical_column_with_identity: {0, 1, 2} -> {0, 1, 2}  (this is just a validation)
+# categorical_column_with_identity: {0, 1, 2} -> {0, 1, 2}  (this is just for validation)
 # categorical_column_with_vocabulary_list: {dog, cat} -> {0, 1}
 # categorical_column_with_vocabulary_file: {dog, cat} -> {0, 1}
 # categorical_column_with_hash_bucket: {dog, cat, ...} -> {0, 1, ..., N} hashed into buckets

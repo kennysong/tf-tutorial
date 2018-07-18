@@ -12,7 +12,7 @@ mlp_estimator_custom.py
 mlp_estimator_premade.py
 ```
 
-Run things with `python3 -i ____.py`. 
+Run things with `python3 -i ____.py` in this directory. 
 
 ## Resources
 
