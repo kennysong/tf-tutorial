@@ -1,0 +1,7 @@
+logs/*
+models/*
+!logs/.gitkeep
+!models/.gitkeep
+
+questions.md
+*.docx
