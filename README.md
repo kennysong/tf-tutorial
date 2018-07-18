@@ -1,7 +1,4 @@
-tf-tutorial
-===========
-
-### Order of files
+## Order of files
 
 ```
 low_level.py
@@ -17,7 +14,7 @@ mlp_estimator_premade.py
 
 Run things with `python3 -i ____.py`. 
 
-### Resources
+## Resources
 
 #### Overview Stuff
 
