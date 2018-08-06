@@ -84,6 +84,12 @@ predictions = estimator.predict(test_input_fn)
 print(next(predictions))
 
 ###############################################################################
+# Higher-level train_and_evaluate(), TrainSpec, and EvalSpec
+###############################################################################
+
+# TODO
+
+###############################################################################
 # Note on automatically saving and loading with Checkpoints
 ###############################################################################
 
