@@ -40,8 +40,8 @@ def make_dataset(images_file, labels_file, batch_size, epochs=1):
 # Hyperparameters
 epochs = 10
 learning_rate = 0.25
-batch_size = 128
-steps_per_epoch = 60000 // batch_size
+batch_size = 128                       # 1 step = 1 batch
+steps_per_epoch = 60000 // batch_size  # 1 epoch = entire training set of 60000
 
 # Network parameters
 # (the input size is defined by feature_columns later down)
@@ -87,7 +87,22 @@ print(next(predictions))
 # Higher-level train_and_evaluate(), TrainSpec, and EvalSpec
 ###############################################################################
 
-# TODO
+# Remove Checkpoints so we can train from the start.
+try: shutil.rmtree(model_dir); os.makedirs(model_dir)
+except: pass
+
+# train_and_evaluate() allows you to easily train in distributed mode (by just
+# specifing the shell variable TF_CONFIG), evaluate, and export.
+
+# However, you must explicitly specify the max number of steps to run, since it
+# will evaluate after an OutOfRangeError and then start training again, looping
+# forever. This is an artifact of supporting distributed training.
+total_steps = epochs * steps_per_epoch
+
+# TrainSpec is self-explanatory. EvalSpec can also include a list of Exporters.
+train_spec = tf.estimator.TrainSpec(input_fn=train_input_fn, max_steps=total_steps)
+eval_spec = tf.estimator.EvalSpec(input_fn=test_input_fn)
+tf.estimator.train_and_evaluate(estimator, train_spec, eval_spec)
 
 ###############################################################################
 # Note on automatically saving and loading with Checkpoints
